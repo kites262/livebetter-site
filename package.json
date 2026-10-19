@@ -1,0 +1,32 @@
+{
+  "name": "livebetter-site",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "从 HowToLiveBetter 原文构建的生活指南静态网站",
+  "scripts": {
+    "content:fetch": "node scripts/content-fetch.mjs",
+    "content:sync": "node --env-file-if-exists=.env scripts/import-content.mjs",
+    "content:check": "node --env-file-if-exists=.env scripts/check-content.mjs",
+    "predev": "npm run content:sync",
+    "dev": "astro dev --host 100.64.1.102 --port 4321",
+    "prebuild": "npm run content:sync",
+    "build": "astro build",
+    "postbuild": "node --env-file-if-exists=.env scripts/check-built.mjs",
+    "preview": "astro preview --host 100.64.1.102 --port 4321",
+    "precheck": "npm run content:sync",
+    "check": "astro check && npm run content:check",
+    "test": "node --env-file-if-exists=.env --test scripts/*.test.mjs",
+    "test:browser": "node scripts/browser-check.mjs"
+  },
+  "dependencies": {
+    "@astrojs/starlight": "0.42.5",
+    "astro": "7.3.5"
+  },
+  "devDependencies": {
+    "@astrojs/check": "0.9.10",
+    "playwright": "1.63.0",
+    "typescript": "5.9.3"
+  },
+  "engines": { "node": ">=22.12.0" }
+}

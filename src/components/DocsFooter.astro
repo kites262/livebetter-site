@@ -1,0 +1,19 @@
+---
+import EditLink from '@astrojs/starlight/components/EditLink.astro';
+import LastUpdated from '@astrojs/starlight/components/LastUpdated.astro';
+import Pagination from '@astrojs/starlight/components/Pagination.astro';
+import IcpRecord from './IcpRecord.astro';
+---
+<footer class="docs-footer" data-pagefind-ignore>
+  <div class="docs-footer-meta">
+    <span>生活有方 · 高性价比人生指南</span>
+    <EditLink />
+    <LastUpdated />
+    <IcpRecord />
+  </div>
+  <Pagination />
+</footer>
+<style>
+  .docs-footer { margin-top: 2rem; }
+  .docs-footer-meta { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: .5rem 1.5rem; font-size: var(--sl-text-xs); color: var(--sl-color-gray-3); }
+</style>

@@ -1,0 +1,36 @@
+---
+interface Props { active?: 'home' | 'explore' | 'guide'; compact?: boolean }
+const { active = 'home', compact = false } = Astro.props;
+const base = import.meta.env.BASE_URL;
+const href = (path: string) => `${base}${path}`;
+---
+<header class:list={['life-header', { 'is-compact': compact }]}>
+  <div class="life-container life-header-inner">
+    <a class="life-brand" href={base} aria-label="生活有方 · 首页">
+      <span class="life-brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none"><path d="M7 8.5h9c5.5 0 9 3.5 9 9v7H16c-5.5 0-9-3.5-9-9v-7Z" stroke="currentColor" stroke-width="1.5"/><path d="m11 21 10-10M11 12v9h9" stroke="currentColor" stroke-width="1.5"/></svg></span>
+      <span>生活有方<span class="life-brand-en">LIVE BETTER</span></span>
+    </a>
+    <button class="life-menu-toggle" aria-expanded="false" aria-controls="life-navigation" aria-label="打开导航"><span></span><span></span></button>
+    <nav class="life-navigation" id="life-navigation" aria-label="主导航">
+      <a href={base} aria-current={active === 'home' ? 'page' : undefined}>首页</a>
+      <a href={href('guide/01/')} aria-current={active === 'guide' ? 'page' : undefined}>生活指南</a>
+      <a href={`${base}#scenarios`}>场景专题</a>
+      <a href={href('explore/')} aria-current={active === 'explore' ? 'page' : undefined}>条目检索</a>
+      <a class="life-nav-search" href={href('explore/')}><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8.8" cy="8.8" r="5.8" stroke="currentColor" stroke-width="1.5"/><path d="m13 13 4 4" stroke="currentColor" stroke-width="1.5"/></svg><span>搜索</span><span class="life-nav-arrow" aria-hidden="true">↗</span></a>
+    </nav>
+  </div>
+</header>
+<script>
+  const initialize = () => {
+    const toggle = document.querySelector<HTMLButtonElement>('.life-menu-toggle');
+    const navigation = document.querySelector<HTMLElement>('.life-navigation');
+    if (!toggle || !navigation || toggle.dataset.ready) return;
+    toggle.dataset.ready = 'true';
+    const close = () => { toggle.setAttribute('aria-expanded', 'false'); navigation.classList.remove('is-open'); };
+    toggle.addEventListener('click', () => { const open = toggle.getAttribute('aria-expanded') !== 'true'; toggle.setAttribute('aria-expanded', String(open)); navigation.classList.toggle('is-open', open); });
+    navigation.querySelectorAll('a').forEach(link => link.addEventListener('click', close));
+    document.addEventListener('keydown', event => { if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') { close(); toggle.focus(); } });
+  };
+  initialize();
+  document.addEventListener('astro:page-load', initialize);
+</script>

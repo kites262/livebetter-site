@@ -1,0 +1,302 @@
+---
+import catalog from '../data/catalog.json';
+import LifeHeader from '../components/LifeHeader.astro';
+import LifeFooter from '../components/LifeFooter.astro';
+import '../styles/theme.css';
+
+const base = import.meta.env.BASE_URL;
+const payload = JSON.stringify({
+  entries: catalog.entries,
+  sections: catalog.sections.map(({ number, title, group }) => ({ number, title, group })),
+}).replace(/</g, '\\u003c');
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="按主题、成本与证据查找生活建议，检索全书与专题。" />
+    <title>条目索引 · 生活有方</title>
+    {Astro.site && <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />}
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+  </head>
+  <body class="life-shell explore-page" data-pagefind-ignore>
+    <a class="explore-skip" href="#explore-main">跳到检索内容</a>
+    <LifeHeader active="explore" />
+    <main class="life-container" id="explore-main">
+      <section class="explore-intro">
+        <div class="life-eyebrow"><span></span> 条目索引</div>
+        <div class="explore-title-row"><h1>生活里的事，<span>在这里查。</span></h1><span class="index-number">INDEX <b>{catalog.stats.entries}</b></span></div>
+        <p>按主题、成本与证据，找眼下用得上的。</p>
+        <form id="search-form" role="search">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 5 5"/></svg>
+            <label class="visually-hidden" for="entry-search">搜索生活建议或全文</label>
+            <input id="entry-search" name="q" type="search" placeholder="搜索睡眠、医保、劳动权益…" autocomplete="off" />
+            <button class="search-submit" type="submit">搜索 <span aria-hidden="true">↗</span></button>
+          </div>
+        </form>
+        <div class="search-suggestions"><span>常用词</span>{['失业保险', '睡眠', '工伤', '安全带'].map((keyword) => <button type="button" data-keyword={keyword}>{keyword} <span aria-hidden="true">↗</span></button>)}</div>
+      </section>
+
+      <div class="explore-tabs" role="tablist" aria-label="搜索范围">
+        <button id="mode-entries" type="button" role="tab" aria-selected="true" aria-controls="search-results-panel">建议速查 <span>{catalog.stats.entries}</span></button>
+        <button id="mode-all" type="button" role="tab" aria-selected="false" aria-controls="search-results-panel" tabindex="-1">全书与专题 <span aria-hidden="true">↗</span></button>
+        <p>查建议，或读全文。</p>
+      </div>
+
+      <div class="explore-layout" id="search-results-panel" role="tabpanel" aria-labelledby="mode-entries">
+        <aside class="filter-panel">
+          <details open id="filter-disclosure">
+            <summary>缩小范围 <span aria-hidden="true">＋</span></summary>
+            <fieldset id="filter-fields">
+              <legend class="visually-hidden">筛选建议</legend>
+              <label for="group-filter">生活主题</label>
+              <select id="group-filter"><option value="">所有主题</option>{catalog.groups.map((group) => <option value={group.id}>{group.title}</option>)}</select>
+              <label for="evidence-filter">证据等级</label>
+              <select id="evidence-filter"><option value="">所有等级</option><option value="A">A · 出处与数字可核</option><option value="B">B · 有研究支持</option><option value="C">C · 经验或共识</option></select>
+              <label for="money-filter">金钱成本</label>
+              <select id="money-filter"><option value="">不限成本</option><option value="0">不花钱或省钱</option><option value="少">少量支出</option><option value="多">较多支出</option></select>
+              <label for="resource-filter">收益类型</label>
+              <select id="resource-filter"><option value="">全部收益类型</option><option value="死亡率">寿命与健康</option><option value="时间">时间与精力</option><option value="金钱">金钱</option><option value="自由">人身自由</option></select>
+              <label class="check-label" title="不花钱或省钱、只需几分钟、无需长期坚持"><input id="cheap-only" type="checkbox"/><span>不花钱 · 少费力</span></label>
+              <label class="check-label"><input id="disputed-only" type="checkbox"/><span>含争议标注</span></label>
+              <button id="reset-filters" type="button">清空筛选 <span aria-hidden="true">↺</span></button>
+            </fieldset>
+          </details>
+          <p class="filter-note" id="filter-note">证据与性价比，分别看。<a href={`${base}about/evidence/`}>分级说明 ↗</a></p>
+        </aside>
+
+        <section class="results-panel" aria-label="检索结果">
+          <div class="results-heading"><h2>检索结果</h2><p id="result-count" role="status" aria-live="polite">共 {catalog.stats.entries} 条建议</p></div>
+          <div id="results" class="result-grid">
+            {catalog.entries.slice(0, 12).map((entry) => <a class="entry-card" href={entry.href}>
+              <div class="entry-meta"><span>第 {entry.section} 章 · 第 {entry.number} 条</span><span class="evidence-badge">证据 {entry.evidence}</span></div>
+              <h3>{entry.title}<span aria-hidden="true">↗</span></h3>
+              <p>{entry.plain}</p>
+              <div class="entry-bottom"><span>依据与适用条件</span><span aria-hidden="true">→</span></div>
+            </a>)}
+          </div>
+          <button id="load-more" class="life-button secondary load-more" type="button">加载更多 <span aria-hidden="true">↓</span></button>
+          <noscript><p>搜索与筛选需启用 JavaScript。也可<a href={`${base}guide/01/`}>按目录阅读</a>。</p></noscript>
+        </section>
+      </div>
+      <div class="explore-bottom-note"><span aria-hidden="true">✳</span><p>适用条件与来源，见条目正文。</p><a href={`${base}about/reading/`}>阅读说明 ↗</a></div>
+    </main>
+    <LifeFooter />
+    <script id="catalog-data" type="application/json" set:html={payload}></script>
+    <script>
+      type Entry = { id: string; section: number; number: number; title: string; href: string; plain: string; cost: string; evidence: string; disputed: boolean; tags: { money: string; time: string; willpower: string; resource: string } };
+      type Section = { number: number; title: string; group: string };
+      type SearchData = { url: string; meta: { title?: string }; excerpt: string; sub_results?: { url: string; title: string; excerpt: string }[] };
+      type Pagefind = { options: (options: { baseUrl: string }) => Promise<void>; search: (query: string) => Promise<{ results: { data: () => Promise<SearchData> }[] }> };
+      const payload = document.querySelector('#catalog-data')!.textContent!;
+      const { entries, sections } = JSON.parse(payload) as { entries: Entry[]; sections: Section[] };
+      const bySection = new Map(sections.map((section) => [section.number, section]));
+      const input = document.querySelector<HTMLInputElement>('#entry-search')!;
+      const results = document.querySelector<HTMLDivElement>('#results')!;
+      const counter = document.querySelector<HTMLParagraphElement>('#result-count')!;
+      const more = document.querySelector<HTMLButtonElement>('#load-more')!;
+      const fields = document.querySelector<HTMLFieldSetElement>('#filter-fields')!;
+      const tabs = [document.querySelector<HTMLButtonElement>('#mode-entries')!, document.querySelector<HTMLButtonElement>('#mode-all')!];
+      const group = document.querySelector<HTMLSelectElement>('#group-filter')!;
+      const evidence = document.querySelector<HTMLSelectElement>('#evidence-filter')!;
+      const money = document.querySelector<HTMLSelectElement>('#money-filter')!;
+      const resource = document.querySelector<HTMLSelectElement>('#resource-filter')!;
+      const cheap = document.querySelector<HTMLInputElement>('#cheap-only')!;
+      const dispute = document.querySelector<HTMLInputElement>('#disputed-only')!;
+      const modePanel = document.querySelector<HTMLDivElement>('#search-results-panel')!;
+      const filterNote = document.querySelector<HTMLParagraphElement>('#filter-note')!;
+      const originalFilterNote = filterNote.innerHTML;
+      let mode = 'entries';
+      let limit = 12;
+      let requestId = 0;
+      let pagefind: Promise<Pagefind> | undefined;
+      const base = import.meta.env.BASE_URL;
+
+      function el<K extends keyof HTMLElementTagNameMap>(tag: K, className: string, text = '') {
+        const node = document.createElement(tag); node.className = className; node.textContent = text; return node;
+      }
+      function empty(title: string, message: string) {
+        const box = el('div', 'empty-state');
+        box.append(el('span', 'empty-icon', '⌕'), el('h3', '', title), el('p', '', message));
+        results.replaceChildren(box);
+      }
+      function card(entry: Entry) {
+        const link = el('a', 'entry-card'); link.href = entry.href;
+        const meta = el('div', 'entry-meta');
+        meta.append(el('span', '', `第 ${entry.section} 章 · 第 ${entry.number} 条`), el('span', 'evidence-badge', `证据 ${entry.evidence}`));
+        const heading = el('h3', '', entry.title); heading.append(el('span', '', '↗'));
+        const bottom = el('div', 'entry-bottom');
+        bottom.append(el('span', '', bySection.get(entry.section)?.title || '查看依据'), el('span', '', '→'));
+        link.append(meta, heading, el('p', '', entry.plain), bottom); return link;
+      }
+      function updateURL() {
+        const params = new URLSearchParams();
+        if (input.value.trim()) params.set('q', input.value.trim());
+        if (mode === 'all') params.set('mode', 'all');
+        for (const [name, field] of [['group', group], ['evidence', evidence], ['money', money], ['resource', resource]] as const) if (field.value) params.set(name, field.value);
+        if (cheap.checked) params.set('cheap', '1');
+        if (dispute.checked) params.set('disputed', '1');
+        history.replaceState(null, '', `${location.pathname}${params.size ? `?${params}` : ''}`);
+      }
+      async function render(reset = true) {
+        if (reset) limit = 12;
+        const currentRequest = ++requestId;
+        updateURL();
+        if (mode === 'all') { await renderFulltext(currentRequest); return; }
+        results.removeAttribute('aria-busy');
+        const terms = input.value.trim().toLocaleLowerCase().split(/\s+/).filter(Boolean);
+        const filtered = entries.filter((entry) => {
+          if (group.value && bySection.get(entry.section)?.group !== group.value) return false;
+          if (evidence.value && entry.evidence !== evidence.value) return false;
+          if (money.value && entry.tags.money !== money.value) return false;
+          if (resource.value && entry.tags.resource !== resource.value) return false;
+          if (cheap.checked && !(entry.tags.money === '0' && entry.tags.time === '少' && entry.tags.willpower === '否')) return false;
+          if (dispute.checked && !entry.disputed) return false;
+          const haystack = `${entry.title} ${entry.plain} ${entry.cost}`.toLocaleLowerCase();
+          return terms.every((term) => haystack.includes(term));
+        });
+        if (terms.length) filtered.sort((a, b) => Number(terms.every((term) => b.title.includes(term))) - Number(terms.every((term) => a.title.includes(term))));
+        counter.textContent = `找到 ${filtered.length} 条建议 · 已显示 ${Math.min(limit, filtered.length)} 条`;
+        more.hidden = filtered.length <= limit;
+        if (!filtered.length) { empty('没有找到相关建议', '试试短一些的关键词，或清空筛选、搜索全文。'); return; }
+        results.replaceChildren(...filtered.slice(0, limit).map(card));
+      }
+      async function renderFulltext(currentRequest: number) {
+        more.hidden = true;
+        const query = input.value.trim();
+        if (!query) { counter.textContent = '范围：全书与专题'; empty('搜索全文', '输入关键词，查找正文、来源与专题。'); return; }
+        counter.textContent = '正在搜索…';
+        results.setAttribute('aria-busy', 'true');
+        try {
+          pagefind ??= import(/* @vite-ignore */ `${base}pagefind/pagefind.js`).then(async (module) => {
+            const api = module as Pagefind; await api.options({ baseUrl: base }); return api;
+          });
+          const api = await pagefind;
+          const search = await api.search(query);
+          const loaded = await Promise.all(search.results.slice(0, limit).map((result) => result.data()));
+          if (currentRequest !== requestId) return;
+          counter.textContent = `找到 ${search.results.length} 个页面 · 已显示 ${loaded.length} 个`;
+          more.hidden = search.results.length <= limit;
+          if (!loaded.length) { empty('没有找到相关页面', '换个关键词，或到「建议速查」按主题找。'); return; }
+          results.replaceChildren(...loaded.map((data) => {
+            // 中文分词会把只匹配某个字的片段排在前面，优先显示完整关键词的上下文。
+            const terms = query.toLocaleLowerCase().split(/\s+/).filter(Boolean);
+            const first = data.sub_results?.find((result) => {
+              const text = new DOMParser().parseFromString(`${result.title} ${result.excerpt}`, 'text/html').body.textContent?.toLocaleLowerCase() || '';
+              return terms.every((term) => text.includes(term));
+            }) || data.sub_results?.[0];
+            const link = el('a', 'entry-card fulltext-card'); link.href = first?.url || data.url;
+            const meta = el('div', 'entry-meta'); meta.append(el('span', '', '全文匹配'), el('span', 'evidence-badge', '阅读全文'));
+            const heading = el('h3', '', first?.title || data.meta.title || '指南正文'); heading.append(el('span', '', '↗'));
+            const excerpt = new DOMParser().parseFromString(first?.excerpt || data.excerpt, 'text/html').body.textContent || '';
+            const bottom = el('div', 'entry-bottom'); bottom.append(el('span', '', data.meta.title || '查看上下文'), el('span', '', '→'));
+            link.append(meta, heading, el('p', '', excerpt), bottom); return link;
+          }));
+        } catch {
+          if (currentRequest !== requestId) return;
+          pagefind = undefined;
+          counter.textContent = '全文索引暂不可用';
+          empty('全文搜索暂不可用', import.meta.env.DEV ? '全文索引需构建后预览。可先用「建议速查」。' : '请稍后重试，或用「建议速查」、按目录阅读。');
+        } finally { if (currentRequest === requestId) results.removeAttribute('aria-busy'); }
+      }
+      function setMode(next: string) {
+        mode = next; fields.disabled = mode === 'all';
+        tabs.forEach((tab, i) => { const selected = (i === 0) === (mode === 'entries'); tab.setAttribute('aria-selected', String(selected)); tab.tabIndex = selected ? 0 : -1; });
+        modePanel.setAttribute('aria-labelledby', mode === 'all' ? 'mode-all' : 'mode-entries');
+        filterNote.innerHTML = mode === 'all' ? '全文含正文与专题。成本、证据筛选请用「建议速查」。' : originalFilterNote;
+        void render();
+      }
+      let debounce: ReturnType<typeof setTimeout>;
+      input.addEventListener('input', () => { clearTimeout(debounce); debounce = setTimeout(() => void render(), 160); });
+      document.querySelector('#search-form')!.addEventListener('submit', (event) => { event.preventDefault(); clearTimeout(debounce); void render(); });
+      [group, evidence, money, resource, cheap, dispute].forEach((field) => field.addEventListener('change', () => void render()));
+      document.querySelector('#reset-filters')!.addEventListener('click', () => { [group, evidence, money, resource].forEach((field) => field.value = ''); cheap.checked = false; dispute.checked = false; void render(); });
+      more.addEventListener('click', () => { limit += 12; void render(false); });
+      tabs.forEach((tab, i) => {
+        tab.addEventListener('click', () => setMode(i === 0 ? 'entries' : 'all'));
+        tab.addEventListener('keydown', (event) => { if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return; event.preventDefault(); const index = event.key === 'Home' ? 0 : event.key === 'End' ? 1 : 1 - i; setMode(index === 0 ? 'entries' : 'all'); tabs[index].focus(); });
+      });
+      document.querySelectorAll<HTMLButtonElement>('[data-keyword]').forEach((button) => button.addEventListener('click', () => { input.value = button.dataset.keyword!; void render(); input.focus(); }));
+      const initial = new URLSearchParams(location.search);
+      input.value = initial.get('q') || '';
+      for (const [name, field] of [['group', group], ['evidence', evidence], ['money', money], ['resource', resource]] as const) field.value = initial.get(name) || '';
+      cheap.checked = initial.get('cheap') === '1'; dispute.checked = initial.get('disputed') === '1';
+      setMode(initial.get('mode') === 'all' ? 'all' : 'entries');
+      if (matchMedia('(max-width: 760px)').matches) document.querySelector<HTMLDetailsElement>('#filter-disclosure')!.open = false;
+    </script>
+  </body>
+</html>
+
+<style>
+  .explore-page { --explore-border:rgba(192,220,208,.14); }
+  .explore-skip { position:fixed; top:-100px; left:1rem; z-index:200; background:#c9f1d3; color:#13241f; padding:.8rem; border-radius:.5rem; }
+  .explore-skip:focus { top:1rem; }
+  .visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+  .explore-intro { padding:5rem 0 2.4rem; }
+  .explore-title-row { display:flex; justify-content:space-between; align-items:center; gap:2rem; margin-top:1.6rem; }
+  .explore-title-row h1 { font-size:clamp(2.3rem,4.5vw,4.1rem); line-height:1.25; letter-spacing:-.05em; margin:0; }
+  .explore-title-row h1 span { color:#bde8c7; }
+  .index-number { font-size:.66rem; letter-spacing:.18em; color:#9db1a5; text-align:right; }
+  .index-number b { display:block; font-size:3.2rem; letter-spacing:-.04em; font-weight:500; color:#eaf0e5; }
+  .explore-intro>p { color:#a6b6ac; line-height:1.9; margin:1.3rem 0 2.2rem; }
+  .search-box { display:flex; align-items:center; padding:.6rem .7rem .6rem 1.3rem; border:1px solid rgba(174,225,192,.35); border-radius:1rem; background:rgba(31,51,43,.8); box-shadow:0 10px 60px rgba(0,0,0,.1); gap:1rem; }
+  .search-box:focus-within { border-color:#bde8c7; box-shadow:0 0 0 3px rgba(189,232,199,.1); }
+  .search-box svg { flex-shrink:0; stroke:#bde8c7; stroke-width:1.6; fill:none; }
+  .search-box input { min-width:0; width:100%; background:none; border:0; color:#f3f5ed; font:inherit; font-size:1rem; outline:none; padding:.7rem 0; }
+  .search-box input::placeholder { color:#91a69b; }
+  .search-submit { background:#c6edcf; color:#172d22; border:0; border-radius:.65rem; white-space:nowrap; padding:.85rem 1.25rem; font:inherit; cursor:pointer; font-weight:600; }
+  .search-submit span { margin-left:.9rem; }
+  .search-suggestions { display:flex; align-items:center; flex-wrap:wrap; gap:.65rem; margin-top:1.1rem; font-size:.78rem; color:#96aa9e; }
+  .search-suggestions>span { margin-right:.4rem; }
+  .search-suggestions button { background:none; color:#b5c5ba; border:1px solid var(--explore-border); border-radius:2rem; padding:.4rem .8rem; font:inherit; cursor:pointer; transition:background .2s,border-color .2s; }
+  .search-suggestions button:hover { background:#294438; border-color:#9ed8af; }
+  .search-suggestions button span { margin-left:.3rem; }
+  .explore-tabs { display:flex; gap:2rem; align-items:center; border-bottom:1px solid var(--explore-border); }
+  .explore-tabs button { background:none; border:0; border-bottom:2px solid transparent; font:inherit; color:#94a99c; padding:1.1rem 0; cursor:pointer; }
+  .explore-tabs button[aria-selected="true"] { color:#c6edcf; border-bottom-color:#c6edcf; }
+  .explore-tabs button>span { font-size:.7rem; margin-left:.6rem; opacity:.7; }
+  .explore-tabs>p { margin-left:auto; font-size:.75rem; color:#9aada1; }
+  .explore-layout { display:grid; grid-template-columns:230px minmax(0,1fr); gap:2.3rem; padding-top:2rem; align-items:start; }
+  .filter-panel { position:sticky; top:100px; }
+  .filter-panel details { border:1px solid var(--explore-border); border-radius:1rem; padding:1.2rem; background:rgba(27,47,37,.65); }
+  .filter-panel summary { font-size:.93rem; font-weight:600; cursor:pointer; list-style:none; display:flex; justify-content:space-between; }
+  .filter-panel summary::-webkit-details-marker { display:none; }
+  .filter-panel details[open] summary span { transform:rotate(45deg); }
+  .filter-panel fieldset { border:0; padding:0; margin:1.3rem 0 0; min-width:0; }
+  .filter-panel fieldset:disabled { opacity:.4; }
+  .filter-panel label:not(.check-label) { display:block; font-size:.73rem; color:#a9bbb0; margin:1rem 0 .5rem; }
+  .filter-panel select { width:100%; font:inherit; font-size:.78rem; color:#dce8dc; padding:.7rem .4rem; border:1px solid var(--explore-border); border-radius:.5rem; background:#1a2d23; }
+  .check-label { display:flex; gap:.6rem; align-items:flex-start; font-size:.74rem; line-height:1.6; color:#afc1b4; margin-top:1.2rem; cursor:pointer; }
+  .check-label input { margin:.18rem 0 0; accent-color:#bde8c7; }
+  #reset-filters { width:100%; display:flex; justify-content:space-between; margin-top:1.4rem; font:inherit; font-size:.76rem; background:none; color:#c7d8ca; border:0; padding:.8rem 0 0; border-top:1px solid var(--explore-border); cursor:pointer; }
+  .filter-note { font-size:.72rem; line-height:1.8; color:#91a99a; padding:0 .5rem; }
+  .filter-note a { display:block; color:#bde8c7; margin-top:.35rem; }
+  .results-heading { display:flex; justify-content:space-between; gap:1rem; align-items:center; margin-bottom:1.2rem; }
+  .results-heading h2 { font-size:1rem; font-weight:500; margin:0; }
+  .results-heading p { font-size:.72rem; color:#a0b6a7; margin:0; }
+  .result-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1rem; }
+  .result-grid:global([aria-busy="true"]) { opacity:.6; }
+  .result-grid :global(.entry-card) { display:flex; flex-direction:column; border:1px solid var(--explore-border); border-radius:1rem; padding:1.35rem; color:#eaf2e5; background:linear-gradient(135deg,rgba(40,62,48,.65),rgba(26,43,33,.4)); text-decoration:none; transition:transform .25s,border-color .25s,background .25s; min-width:0; }
+  .result-grid :global(.entry-card:hover) { transform:translateY(-3px); border-color:rgba(189,232,199,.5); background:rgba(43,68,51,.8); }
+  .result-grid :global(.entry-meta) { display:flex; justify-content:space-between; gap:.6rem; align-items:center; font-size:.63rem; color:#9bb6a4; }
+  .result-grid :global(.evidence-badge) { padding:.25rem .5rem; color:#c8e7cf; border:1px solid rgba(189,232,199,.18); border-radius:2rem; white-space:nowrap; }
+  .result-grid :global(.entry-card h3) { display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; font-size:1.03rem; font-weight:550; line-height:1.7; margin:1.05rem 0 .8rem; }
+  .result-grid :global(.entry-card h3 span) { color:#bfe7c9; flex-shrink:0; }
+  .result-grid :global(.entry-card>p) { font-size:.81rem; line-height:1.9; color:#a5bdad; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; margin:0 0 1.3rem; }
+  .result-grid :global(.entry-bottom) { margin-top:auto; padding-top:1rem; border-top:1px solid var(--explore-border); font-size:.65rem; color:#a5bcab; display:flex; justify-content:space-between; gap:1rem; }
+  .result-grid :global(.empty-state) { grid-column:1/-1; text-align:center; border:1px dashed var(--explore-border); padding:4rem 2rem; border-radius:1rem; }
+  .result-grid :global(.empty-icon) { font-size:3rem; color:#bde8c7; }
+  .result-grid :global(.empty-state h3) { font-size:1.3rem; margin:.5rem 0; }
+  .result-grid :global(.empty-state p) { font-size:.86rem; line-height:1.8; color:#9fb4a7; }
+  .load-more { display:flex; margin:2rem auto 0; cursor:pointer; }
+  .load-more[hidden] { display:none; }
+  .explore-bottom-note { display:flex; align-items:center; gap:1rem; margin:3.8rem 0; padding:1.3rem 0; border-top:1px solid var(--explore-border); border-bottom:1px solid var(--explore-border); color:#a6bdae; font-size:.78rem; }
+  .explore-bottom-note>span { color:#d0dcb2; font-size:1.3rem; }
+  .explore-bottom-note a { color:#c6edcf; margin-left:auto; white-space:nowrap; }
+  .explore-page :global(:focus-visible) { outline:2px solid #c6edcf; outline-offset:4px; }
+  @media(max-width:1000px) { .explore-layout { grid-template-columns:205px minmax(0,1fr); gap:1.4rem; }.result-grid { grid-template-columns:1fr; }.explore-tabs>p { display:none; } }
+  @media(max-width:760px) { .explore-intro { padding-top:3rem; }.explore-title-row h1 { font-size:2.3rem; }.explore-title-row h1 span { display:block; }.index-number b { font-size:2.4rem; }.explore-layout { grid-template-columns:1fr; gap:1.8rem; }.filter-panel { position:static; }.filter-panel fieldset { display:grid; grid-template-columns:1fr; }.filter-note { display:none; }.search-box { gap:.7rem; padding-left:.9rem; }.search-box input { font-size:.83rem; }.search-submit { padding:.85rem .85rem; font-size:.83rem; }.search-submit span { display:none; }.search-suggestions { gap:.45rem; }.search-suggestions>span { display:none; }.results-heading { align-items:flex-start; }.explore-bottom-note { flex-wrap:wrap; gap:.5rem; }.explore-bottom-note p { flex-basis:85%; line-height:1.8; margin:0; }.explore-bottom-note a { margin-left:2rem; } }
+  @media(prefers-reduced-motion:reduce) { .result-grid :global(.entry-card), .search-suggestions button { transition:none; }.result-grid :global(.entry-card:hover) { transform:none; } }
+</style>

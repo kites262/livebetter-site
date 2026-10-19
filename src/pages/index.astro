@@ -1,0 +1,83 @@
+---
+import LifeHeader from '../components/LifeHeader.astro';
+import LifeFooter from '../components/LifeFooter.astro';
+import catalog from '../data/catalog.json';
+import '../styles/theme.css';
+const base = import.meta.env.BASE_URL;
+const stats = catalog.stats;
+const groups = catalog.groups;
+const sections = catalog.sections;
+const articles = catalog.articles;
+const guideHref = sections[0]?.href ?? `${base}guide/01/`;
+const icons = [
+  '<path d="M12 20s-8-4.5-8-10a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 10c0 5.5-8 10-8 10Z"/><path d="m6.5 12 3-1 2 4 2-6 2 3H18"/>',
+  '<circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3 2M8 2h8"/>',
+  '<rect x="3" y="6" width="18" height="13" rx="3"/><path d="M3 10h18M16 14h2M7 6V4h10v2"/>',
+  '<path d="M5 21V8h14v13M9 8V4h6v4M9 12h6M9 16h6M3 21h18"/>',
+  '<path d="M3 11 12 3l9 8M5 9v12h14V9M9 21v-7h6v7"/>',
+  '<path d="m2 9 10-5 10 5-10 5L2 9ZM6 11v6c4 3 8 3 12 0v-6M22 9v8"/>',
+  '<path d="M8 3h8l3 5v13H5V8l3-5ZM5 8h14M9 12h6M12 9v9"/>',
+];
+const scenarios = [
+  { title: '被裁之后', label: '工作与保障', description: '补偿、医保、求职，按先后一步步来。', slug: 'topics/after-layoff', color: 'jade', icon: '01' },
+  { title: '家里的应急准备', label: '家庭与安全', description: '灭火器、急救包，按需备齐。', slug: 'topics/emergency-kit', color: 'peach', icon: '02' },
+  { title: '孩子出生前后', label: '孕产与育儿', description: '产检、办证、参保，按阶段准备。', slug: 'topics/newborn-checklist', color: 'blue', icon: '03' },
+].map(s => ({ ...s, item: articles.find(a => a.slug === s.slug) }));
+const evidence = [
+  { grade: 'A', title: '数字与出处可查', description: '量化研究，或法条、官方文件。' },
+  { grade: 'B', title: '有研究支持', description: '数字未定，或研究规模有限。' },
+  { grade: 'C', title: '经验与共识', description: '常见做法，暂无直接研究。' },
+];
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><meta name="description" content="健康、钱、时间与自由。一部随手查阅的生活指南。"/><meta name="theme-color" content="#101d23"/><link rel="icon" type="image/svg+xml" href={`${base}favicon.svg`}/><title>生活有方 · 好好生活，心里有数</title>{Astro.site && <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)}/>}</head>
+  <body class="life-home life-shell">
+    <a class="life-skip" href="#main">跳转到正文</a>
+    <LifeHeader />
+    <main id="main">
+      <section class="life-hero life-container">
+        <div class="life-hero-copy">
+          <div class="life-eyebrow"><span class="life-status-dot"></span> 一本日常参考书 <span class="life-eyebrow-rule"></span></div>
+          <h1>好好生活，<br/>心里<span class="life-emphasis">有数<svg viewBox="0 0 240 25" aria-hidden="true"><path d="M3 17C67 4 163 2 235 12M29 23c55-10 131-13 177-8"/></svg></span></h1>
+          <p class="life-hero-description">健康、钱、时间与自由。<br/>关乎日常，也关乎以后。</p>
+          <div class="life-hero-actions"><a class="life-button" href={guideHref}>翻开指南 <span aria-hidden="true">↗</span></a><a class="life-button secondary" href={`${base}explore/`}><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="m12 12 5 5"/></svg> 查一查</a></div>
+          <div class="life-hero-note"><span class="life-note-lines" aria-hidden="true">≋</span><span>源自《高性价比人生指南》<br/><small>成本 · 收益 · 证据 · 来源</small></span></div>
+        </div>
+        <div class="life-orbit" aria-label="寿命、时间与精力、金钱、人身自由，四种值得守护的资源">
+          <div class="life-orbit-grid"></div><div class="life-orbit-glow"></div>
+          <svg class="life-orbit-lines" viewBox="0 0 600 540" fill="none" aria-hidden="true"><ellipse cx="300" cy="268" rx="191" ry="191"/><ellipse cx="300" cy="268" rx="249" ry="123" transform="rotate(-35 300 268)"/><path d="M80 388 480 88M69 137l473 260"/><circle class="life-orbit-route" cx="300" cy="268" r="233"/><circle cx="113" cy="307" r="5"/><circle cx="485" cy="223" r="4"/></svg>
+          <div class="life-orbit-core"><div class="life-orbit-core-inner"><span class="life-core-star" aria-hidden="true">✳</span><span>生活<br/><strong>有方</strong></span><small>BETTER EVERY DAY</small></div></div>
+          <div class="life-resource resource-health"><span class="life-resource-symbol">♡</span><div><small>01 / HEALTH</small><strong>寿命</strong><span>少些病痛</span></div></div>
+          <div class="life-resource resource-time"><span class="life-resource-symbol">◷</span><div><small>02 / ENERGY</small><strong>时间与精力</strong><span>少些消耗</span></div></div>
+          <div class="life-resource resource-money"><span class="life-resource-symbol">¥</span><div><small>03 / WEALTH</small><strong>金钱</strong><span>少花冤枉钱</span></div></div>
+          <div class="life-resource resource-freedom"><span class="life-resource-symbol">↗</span><div><small>04 / FREEDOM</small><strong>人身自由</strong><span>知边界，留余地</span></div></div>
+          <span class="life-orbit-caption">有所知 · 有所选</span><span class="life-orbit-coordinate">NOTES FOR LIVING</span>
+        </div>
+      </section>
+      <section class="life-stats life-container" aria-label="指南概览">
+        <div><strong>{stats.chapters}<span>章</span></strong><p>生活大小事</p></div><div><strong>{stats.entries}<span>条</span></strong><p>建议与依据</p></div><div><strong>4<span>种资源</span></strong><p>寿命 · 时间 · 钱 · 自由</p></div><div class="life-stat-editorial"><span>随手翻阅</span><p>需要的时候，<br/>有处可查。</p><svg viewBox="0 0 42 42" fill="none" aria-hidden="true"><path d="M6 35 35 6M10 6h25v25"/></svg></div>
+      </section>
+      <section class="life-topics life-container life-reveal" id="themes">
+        <div class="life-section-head"><div><div class="life-eyebrow">01 / 生活目录</div><h2>身体、工作、家与远方</h2><p>七个主题，随手翻阅。</p></div><a class="life-text-link" href={`${base}explore/`}>全部条目 <span aria-hidden="true">↗</span></a></div>
+        <div class="life-theme-grid">{groups.map((group, index) => {
+          const chapters = sections.filter(s => s.group === group.id || group.sections.includes(s.number));
+          return <a class:list={['life-theme-card', `theme-${index % 7}`]} href={`${base}explore/?group=${group.id}`}><div class="life-theme-card-top"><span class="life-theme-icon"><svg viewBox="0 0 24 24" fill="none" set:html={icons[index % icons.length]} /></span><span class="life-card-number">0{index + 1}</span></div><h3>{group.title}</h3><p>{group.description}</p><div class="life-theme-card-bottom"><span>{chapters.length} 章 · {chapters.reduce((sum, chapter) => sum + chapter.count, 0)} 条建议</span><span aria-hidden="true">↗</span></div></a>;
+        })}<a class="life-theme-card life-theme-search" href={`${base}explore/`}><span class="life-eyebrow">随手查查</span><h3>有什么<br/>想知道的？</h3><div class="life-search-preview"><span>睡眠、医保、劳动权益…</span><svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="m12 12 5 5"/></svg></div><p>输入关键词，找到相关建议。</p></a></div>
+      </section>
+      <section class="life-scenarios life-reveal" id="scenarios"><div class="life-container"><div class="life-section-head"><div><div class="life-eyebrow">02 / 遇事翻一翻</div><h2>眼前的事，一件件来</h2><p>按事情的先后，整理成清单。</p></div><span class="life-section-side-note">IN REAL LIFE <span>↘</span></span></div><div class="life-scenario-grid">{scenarios.map(scenario => <a class:list={['life-scenario-card', `scenario-${scenario.color}`]} href={scenario.item?.href ?? guideHref}><div class="life-scenario-visual" aria-hidden="true"><span class="life-scenario-arch"></span><span class="life-scenario-disc"></span><span class="life-scenario-stair"></span><span class="life-scenario-index">{scenario.icon}</span><span class="life-scenario-spark">✳</span></div><div class="life-scenario-copy"><span class="life-scenario-label">{scenario.label}</span><h3>{scenario.title}</h3><p>{scenario.description}</p><span class="life-text-link">翻开清单 <span aria-hidden="true">↗</span></span></div></a>)}</div></div></section>
+      <section class="life-evidence life-container life-reveal"><div class="life-evidence-intro"><div class="life-eyebrow">03 / 建议的来处</div><h2>有出处，<br/>也有分寸。</h2><p>每条保留来源与适用条件。<br/>证据有强弱，结论有范围。</p><a class="life-text-link" href={`${base}about/evidence/`}>证据说明 <span aria-hidden="true">↗</span></a><div class="life-evidence-quote"><span aria-hidden="true">“</span>挑一两条有用的，就好。</div></div><div class="life-evidence-grades">{evidence.map(item => <div class="life-evidence-row"><span class={`life-evidence-badge grade-${item.grade.toLowerCase()}`}>{item.grade}</span><div><h3>{item.title}</h3><p>{item.description}</p></div><span class="life-evidence-row-line" aria-hidden="true">↗</span></div>)}<div class="life-evidence-footnote"><span class="life-status-dot"></span> A级不等于因果确定；性价比另作判断。</div></div></section>
+      <section class="life-bottom-cta life-container life-reveal"><div class="life-cta-orbits" aria-hidden="true"></div><div><div class="life-eyebrow">留待日常</div><h2>慢慢读，<br class="mobile-break"/>用得上就好。</h2><p>不急着读完，也不必样样照做。</p></div><a class="life-button" href={`${base}explore/`}>随手翻翻 <span aria-hidden="true">↗</span></a></section>
+    </main>
+    <LifeFooter />
+    <script>
+      const reveal = () => {
+        const sections = document.querySelectorAll<HTMLElement>('.life-reveal');
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches || !('IntersectionObserver' in window)) return;
+        const observer = new IntersectionObserver(entries => { entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); } }); }, { threshold: 0.08 });
+        sections.forEach(section => { section.classList.add('can-reveal'); observer.observe(section); });
+      };
+      reveal();
+    </script>
+  </body>
+</html>

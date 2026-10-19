@@ -1,0 +1,38 @@
+---
+import LifeHeader from '../components/LifeHeader.astro';
+import LifeFooter from '../components/LifeFooter.astro';
+import '../styles/theme.css';
+const base = import.meta.env.BASE_URL;
+---
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>这一页不在了 · 生活有方</title>
+    <link rel="icon" href={`${base}favicon.svg`} type="image/svg+xml" />
+  </head>
+  <body class="life-shell" data-pagefind-ignore>
+    <LifeHeader />
+    <main class="life-container missing-page">
+      <div class="life-eyebrow">404 / 页面未找到</div>
+      <div class="missing-number" aria-hidden="true">404<span>✳</span></div>
+      <h1>这一页不在了</h1>
+      <p>换个关键词，再找找。</p>
+      <div class="missing-actions">
+        <a class="life-button" href={`${base}explore/`}>搜索指南 ↗</a>
+        <a class="life-button secondary" href={base}>回到首页 →</a>
+      </div>
+    </main>
+    <LifeFooter />
+  </body>
+</html>
+<style>
+  .missing-page { padding-block:5rem; min-height:65vh; }
+  .missing-number { font-size:clamp(7rem,20vw,15rem); letter-spacing:-.07em; line-height:1.1; color:#b8e6cb; font-weight:600; margin-top:2rem; }
+  .missing-number span { display:inline-block; margin-left:1rem; font-size:.3em; color:#edc3a6; vertical-align:middle; }
+  h1 { font-size:clamp(1.7rem,4vw,2.7rem); margin-top:2rem!important; }
+  p { margin-block:1rem 2rem!important; color:#a5b6ac; }
+  .missing-actions { display:flex; gap:1rem; flex-wrap:wrap; }
+</style>

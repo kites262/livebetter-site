@@ -1,0 +1,11 @@
+---
+const base = import.meta.env.BASE_URL;
+---
+<a class="docs-brand" href={base} aria-label="生活有方，回到首页">
+  <svg viewBox="0 0 32 32" aria-hidden="true" width="32" height="32"><rect width="32" height="32" rx="10" fill="currentColor"/><g fill="none" stroke="var(--sl-color-bg)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8.5h9c5.5 0 9 3.5 9 9v7H16c-5.5 0-9-3.5-9-9v-7Z"/><path d="m11 21 10-10M11 12v9h9"/></g></svg>
+  <span>生活有方<small>高性价比人生指南</small></span>
+</a>
+<style>
+  .docs-brand { display:flex; align-items:center; gap:.65rem; color:var(--sl-color-text-accent); text-decoration:none; font-weight:750; font-size:1.05rem; letter-spacing:.02em; }
+  .docs-brand small { display:block; font-size:.65rem; font-weight:400; color:var(--sl-color-gray-2); margin-top:.15rem; letter-spacing:.1em; }
+</style>

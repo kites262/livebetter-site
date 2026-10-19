@@ -1,0 +1,11 @@
+---
+import IcpRecord from './IcpRecord.astro';
+const base = import.meta.env.BASE_URL;
+---
+<footer class="life-footer">
+  <div class="life-container life-footer-main">
+    <div><a class="life-footer-brand" href={base}>生活有方 <span>LIVE BETTER</span></a><p>日常所需，随手翻阅。</p></div>
+    <div class="life-footer-links"><a href={`${base}about/evidence/`}>阅读说明</a><a href="https://github.com/eternity4719/HowToLiveBetter" target="_blank" rel="noopener noreferrer">原文仓库 ↗</a><a href={`${base}explore/`}>条目检索</a></div>
+  </div>
+  <div class="life-container life-footer-bottom"><span>内容来自《高性价比人生指南》 · eternity4719 / HowToLiveBetter</span><span>原文保留，按主题编排。 · <IcpRecord /></span></div>
+</footer>

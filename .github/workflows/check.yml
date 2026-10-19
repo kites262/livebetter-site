@@ -1,0 +1,27 @@
+name: Check and build
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    env:
+      CONTENT_REPO: .cache/content
+      SITE_URL: https://r8.ink
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run content:fetch
+      - run: npm run check
+      - run: npm test
+      - run: npm run build
